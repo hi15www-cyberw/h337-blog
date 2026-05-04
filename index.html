@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>h337 Blog PRO+</title>
+
+  <!-- 🔒 СИЛЬНАЯ CSP -->
+  <meta http-equiv="Content-Security-Policy"
+  content="
+  default-src 'self';
+  img-src 'self' https: data:;
+  script-src 'self' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline';
+  frame-src https://utteranc.es;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  ">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+
+<header>
+  <h1>🔥 h337 Blog</h1>
+
+  <input id="search" placeholder="🔍 Поиск...">
+
+  <button id="themeToggle">🌙</button>
+</header>
+
+<div id="list"></div>
+<main id="posts"></main>
+
+<section>
+  <h2>💬 Комментарии</h2>
+
+  <script src="https://utteranc.es/client.js"
+    repo="hi15www-cyberw/h337-blog"
+    issue-term="pathname"
+    theme="github-dark"
+    crossorigin="anonymous"
+    async>
+  </script>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
