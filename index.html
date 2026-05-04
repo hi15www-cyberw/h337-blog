@@ -1,223 +1,124 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyBrand 🚀</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyBrand 🚀</title>
 
-<style>
-:root {
-  --bg: #0b0b12;
-  --card: rgba(255,255,255,0.05);
-  --text: #ffffff;
-  --accent: #a855f7;
-  --accent2: #7c3aed;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-* {
-  box-sizing: border-box;
-}
+    .app {
+      text-align: center;
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
+    }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(circle at top, #1a0f2e, #0b0b12);
-  color: var(--text);
-  animation: fadeIn 0.6s ease;
-}
+    .logo {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
 
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1; transform:translateY(0);}
-}
+    .user-card {
+      margin-top: 20px;
+    }
 
-.container {
-  padding: 16px;
-  max-width: 500px;
-  margin: auto;
-}
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
 
-/* логотип */
-.logo {
-  text-align: center;
-  font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  background: linear-gradient(45deg, #c084fc, #a855f7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    #loginBtn {
+      background: #22c55e;
+      color: white;
+    }
 
-/* карточки */
-.card {
-  background: var(--card);
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 14px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  transition: 0.3s;
-}
+    #logoutBtn {
+      background: #ef4444;
+      color: white;
+    }
 
-.card:hover {
-  transform: scale(1.02);
-}
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
 
-/* кнопки */
-.button {
-  background: linear-gradient(45deg, var(--accent), var(--accent2));
-  border: none;
-  color: white;
-  padding: 12px;
-  border-radius: 12px;
-  width: 100%;
-  margin-top: 10px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.button:hover {
-  transform: scale(1.05);
-}
-
-/* пост */
-.post {
-  background: rgba(255,255,255,0.04);
-  padding: 14px;
-  border-radius: 16px;
-  margin-top: 10px;
-  animation: fadeIn 0.5s ease;
-}
-
-.post h3 {
-  margin: 0 0 6px;
-}
-
-.actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.actions span {
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.actions span:hover {
-  color: var(--accent);
-}
-
-/* input */
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  border-radius: 12px;
-  border: none;
-  margin-top: 8px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-}
-
-/* переключатель темы */
-.toggle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* светлая тема */
-.light {
-  --bg: #ffffff;
-  --card: rgba(0,0,0,0.05);
-  --text: #000;
-}
-
-</style>
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
 </head>
 
 <body>
-<div class="container">
 
-<div class="logo">MyBrand 🚀</div>
+  <div class="app">
+    <h1 class="logo">MyBrand 🚀</h1>
 
-<div class="card">
-👀 Онлайн: <b>14</b>
-</div>
+    <div class="user-card">
+      <p id="user">Ты не вошёл</p>
+      <button id="loginBtn">Войти через Google</button>
+      <button id="logoutBtn">Выйти</button>
+    </div>
+  </div>
 
-<div class="card toggle">
-🌙 Тёмный режим
-<input type="checkbox" onchange="toggleTheme(this)">
-</div>
+  <!-- 🔥 Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
-<div class="card">
-🔥 Разделы
-<div class="post">🔥 Лайфхаки</div>
-<div class="post">💡 Советы</div>
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnPp93cxNe9KE-5HM6IXoMAaSEoAJuTZ4",
+      authDomain: "mybrand-blog.firebaseapp.com",
+      projectId: "mybrand-blog",
+      storageBucket: "mybrand-blog.firebasestorage.app",
+      messagingSenderId: "395834373747",
+      appId: "1:395834373747:web:fbd42c5c9c3b638f4d1c06",
+      measurementId: "G-Q8350N29M7"
+    };
 
-<div class="card">
-✏️ Создать пост
-<input id="title" placeholder="Заголовок">
-<textarea id="content" placeholder="Напиши что-нибудь..."></textarea>
-<button class="button" onclick="addPost()">Опубликовать</button>
-</div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-<div class="card">
-⭐ Популярные посты
-<div id="posts"></div>
-</div>
+    const userText = document.getElementById("user");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-</div>
+    loginBtn.onclick = () => {
+      signInWithPopup(auth, provider);
+    };
 
-<script>
+    logoutBtn.onclick = () => {
+      signOut(auth);
+    };
 
-let posts = [
-{title:"Как быстро выучить что угодно", text:"Используй повторение и ассоциации", likes:12},
-{title:"5 полезных привычек", text:"Пей воду, спи нормально, двигайся", likes:8},
-{title:"Как не лениться", text:"Разбей задачи на маленькие шаги", likes:5}
-];
-
-function render() {
-  let html = "";
-  posts.forEach((p,i)=>{
-    html += `
-    <div class="post">
-      <h3>${p.title}</h3>
-      <p>${p.text}</p>
-      <div class="actions">
-        <span onclick="like(${i})">❤️ ${p.likes}</span>
-        <span>💬</span>
-        <span>🔖</span>
-      </div>
-    </div>`;
-  });
-  document.getElementById("posts").innerHTML = html;
-}
-
-function addPost(){
-  let t = document.getElementById("title").value;
-  let c = document.getElementById("content").value;
-
-  if(!t || !c) return alert("Заполни всё");
-
-  posts.unshift({title:t, text:c, likes:0});
-  render();
-}
-
-function like(i){
-  posts[i].likes++;
-  render();
-}
-
-function toggleTheme(el){
-  document.body.classList.toggle("light", el.checked);
-}
-
-render();
-
-</script>
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userText.textContent = "Ты вошёл как: " + user.displayName;
+      } else {
+        userText.textContent = "Ты не вошёл";
+      }
+    });
+  </script>
 
 </body>
 </html>
