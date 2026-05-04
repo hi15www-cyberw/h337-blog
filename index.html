@@ -13,6 +13,7 @@ body{
   justify-content:center;
   align-items:center;
   height:100vh;
+  font-family:sans-serif;
 }
 
 .game{
@@ -68,6 +69,7 @@ body{
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  z-index:5;
 }
 
 /* BUTTON */
@@ -76,6 +78,7 @@ button{
   margin-top:10px;
   border:none;
   border-radius:10px;
+  font-size:16px;
 }
 </style>
 </head>
@@ -102,12 +105,14 @@ const menu = document.getElementById("menu");
 
 let x = 130;
 let running = false;
+let score = 0;
+let difficulty = 1;
 
 // START
 function start(){
   menu.style.display="none";
   running = true;
-  spawnEnemy(); // запуск спавна
+  spawnEnemy();
 }
 
 // CONTROL
@@ -115,7 +120,7 @@ document.addEventListener("touchmove", e=>{
   x = e.touches[0].clientX - 30;
 });
 
-// 🚗 УМНЫЙ СПАВН ВРАГОВ
+// 🚗 СПАВН (редкий + растёт сложность)
 function spawnEnemy(){
   if(!running) return;
 
@@ -134,8 +139,9 @@ function spawnEnemy(){
   e.style.left = Math.random()*260 + "px";
   game.appendChild(e);
 
-  // 🔥 ВАЖНО: случайная задержка (меньше врагов)
-  setTimeout(spawnEnemy, Math.random()*2000 + 1200);
+  // 🔥 чем больше играешь — тем чаще враги
+  let delay = Math.max(700, 2000 - difficulty * 120);
+  setTimeout(spawnEnemy, delay);
 }
 
 // LOOP
@@ -144,18 +150,27 @@ function loop(){
 
     player.style.left = x + "px";
 
+    score++;
+
+    // 📈 сложность растёт
+    difficulty = Math.floor(score / 100);
+
     document.querySelectorAll(".enemy").forEach(el=>{
       let top = el.offsetTop;
-      el.style.top = top + 5 + "px";
 
-      // столкновение
+      // 🚀 скорость увеличивается
+      let speed = 4 + difficulty * 0.6;
+
+      el.style.top = top + speed + "px";
+
+      // 💥 столкновение
       if(
         el.offsetTop+80>460 &&
         el.offsetLeft < x+50 &&
         el.offsetLeft+50 > x
       ){
         running=false;
-        alert("💥 Game Over");
+        alert("💥 Game Over\nScore: " + score);
         location.reload();
       }
 
