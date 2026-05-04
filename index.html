@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MyBrand 🚀</title>
 
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
       display: flex;
@@ -17,32 +16,22 @@
       height: 100vh;
     }
 
-    .app {
-      text-align: center;
-      background: #1e293b;
+    .card {
+      background: rgba(255,255,255,0.05);
       padding: 30px;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      animation: fadeIn 1s ease;
-    }
-
-    .logo {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
-
-    .user-card {
-      margin-top: 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
     button {
       margin: 10px;
-      padding: 10px 20px;
+      padding: 12px 20px;
       border: none;
       border-radius: 10px;
       cursor: pointer;
       font-size: 16px;
-      transition: 0.3s;
     }
 
     #loginBtn {
@@ -54,36 +43,28 @@
       background: #ef4444;
       color: white;
     }
-
-    button:hover {
-      transform: scale(1.05);
-      opacity: 0.9;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
   </style>
 </head>
 
 <body>
 
-  <div class="app">
-    <h1 class="logo">MyBrand 🚀</h1>
-
-    <div class="user-card">
-      <p id="user">Ты не вошёл</p>
-      <button id="loginBtn">Войти через Google</button>
-      <button id="logoutBtn">Выйти</button>
-    </div>
+  <div class="card">
+    <h1>MyBrand 🚀</h1>
+    <p id="user">Ты не вошёл</p>
+    <button id="loginBtn">Войти через Google</button>
+    <button id="logoutBtn">Выйти</button>
   </div>
 
-  <!-- 🔥 Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } 
-      from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+    import { 
+      getAuth, 
+      signInWithPopup, 
+      GoogleAuthProvider, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCnPp93cxNe9KE-5HM6IXoMAaSEoAJuTZ4",
@@ -91,20 +72,20 @@
       projectId: "mybrand-blog",
       storageBucket: "mybrand-blog.firebasestorage.app",
       messagingSenderId: "395834373747",
-      appId: "1:395834373747:web:fbd42c5c9c3b638f4d1c06",
-      measurementId: "G-Q8350N29M7"
+      appId: "1:395834373747:web:fbd42c5c9c3b638f4d1c06"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    const userText = document.getElementById("user");
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const userText = document.getElementById("user");
 
     loginBtn.onclick = () => {
-      signInWithPopup(auth, provider);
+      signInWithPopup(auth, provider)
+        .catch(err => alert(err.message));
     };
 
     logoutBtn.onclick = () => {
@@ -113,7 +94,7 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        userText.textContent = "Ты вошёл как: " + user.displayName;
+        userText.textContent = "Ты вошёл: " + user.displayName;
       } else {
         userText.textContent = "Ты не вошёл";
       }
