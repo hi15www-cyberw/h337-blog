@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyBrand Racing 🚗</title>
+<title>Racing Pro 🚗</title>
 
 <style>
 body{
   margin:0;
-  font-family:-apple-system;
-  background:#0f172a;
+  background:linear-gradient(#0f172a,#020617);
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  color:white;
+  font-family:sans-serif;
 }
 
 .game{
@@ -48,10 +47,76 @@ body{
   bottom:20px;
   left:130px;
   background-size:cover;
-  filter:drop-shadow(0 5px 6px black);
+  filter:drop-shadow(0 5px 8px black);
+  transition:0.2s;
 }
 
-/* FIRE */
+/* ENEMY */
+.enemy{
+  width:60px;
+  height:100px;
+  position:absolute;
+  top:-100px;
+  background-size:cover;
+}
+
+/* UI */
+.ui{
+  position:absolute;
+  top:10px;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  padding:0 10px;
+  color:white;
+}
+
+/* MENU */
+.menu,.garage{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:#000c;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:5;
+}
+
+/* BUTTON */
+button{
+  padding:12px 25px;
+  margin-top:12px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.start{background:#22c55e;color:white;}
+.gar{background:#3b82f6;color:white;}
+.back{background:#ef4444;color:white;}
+
+/* GARAGE */
+.car{
+  width:80px;
+  height:120px;
+  margin:8px;
+  background-size:cover;
+  border:2px solid white;
+}
+
+/* NITRO */
+.nitroBtn{
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  background:#facc15;
+  z-index:2;
+}
+
 .fire{
   position:absolute;
   bottom:-10px;
@@ -63,82 +128,9 @@ body{
   filter:blur(4px);
 }
 
-/* ENEMY */
-.enemy{
-  width:60px;
-  height:100px;
-  position:absolute;
-  top:-100px;
-  background-size:cover;
-  filter:drop-shadow(0 5px 6px black);
-}
-
-/* UI */
-.ui{
-  position:absolute;
-  top:10px;
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  padding:0 10px;
-}
-
-/* MENU */
-.menu,.garage,.upgrades{
-  position:absolute;
-  width:100%;
-  height:100%;
-  background:#000c;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-}
-
-/* BUTTON */
-button{
-  padding:10px 20px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-/* GARAGE */
-.car{
-  width:80px;
-  height:120px;
-  margin:10px;
-  background-size:cover;
-  border:2px solid white;
-}
-
-/* NITRO */
-.nitroBar{
-  position:absolute;
-  bottom:0;
-  left:0;
-  height:6px;
-  background:#22c55e;
-  width:100%;
-}
-
-.nitroBtn{
-  position:absolute;
-  bottom:10px;
-  right:10px;
-  background:#facc15;
-}
-
-/* EFFECTS */
-.speed{filter:blur(1px);}
-.nitroActive{box-shadow:0 0 25px #22c55e;}
-.shake{animation:shake 0.2s infinite;}
-
-@keyframes shake{
-  0%{transform:translateX(0);}
-  50%{transform:translateX(3px);}
-  100%{transform:translateX(-3px);}
+/* EFFECT */
+.nitro{
+  box-shadow:0 0 25px #22c55e;
 }
 </style>
 </head>
@@ -155,74 +147,68 @@ button{
 
   <div class="ui">
     <div id="score">0</div>
-    <div id="coins">💰 0</div>
   </div>
 
-  <div class="nitroBar" id="nitroBar"></div>
   <button class="nitroBtn" id="nitroBtn">⚡</button>
 
   <!-- MENU -->
   <div class="menu" id="menu">
     <h2>🚗 Racing</h2>
-    <button onclick="start()">Start</button>
-    <button onclick="openGarage()">Garage</button>
-    <button onclick="openUpgrades()">Upgrades</button>
+    <button class="start" onclick="start()">Start</button>
+    <button class="gar" onclick="openGarage()">Garage</button>
   </div>
 
   <!-- GARAGE -->
   <div class="garage" id="garage" style="display:none;">
-    <h3>🚗 Гараж</h3>
+    <h3>🚗 Выбор машины</h3>
 
     <div class="car" onclick="selectCar(0)" style="background:url('https://i.imgur.com/7QZ8Z6F.png') center/cover"></div>
-    <div class="car" onclick="buyCar(1)" style="background:url('https://i.imgur.com/6X4RZ9C.png') center/cover"></div>
-    <div class="car" onclick="buyCar(2)" style="background:url('https://i.imgur.com/fz7Xb6p.png') center/cover"></div>
+    <div class="car" onclick="selectCar(1)" style="background:url('https://i.imgur.com/6X4RZ9C.png') center/cover"></div>
+    <div class="car" onclick="selectCar(2)" style="background:url('https://i.imgur.com/fz7Xb6p.png') center/cover"></div>
 
-    <button onclick="closeGarage()">Назад</button>
-  </div>
-
-  <!-- UPGRADES -->
-  <div class="upgrades" id="upgrades" style="display:none;">
-    <h3>⚙️ Апгрейды</h3>
-    <button onclick="upgradeSpeed()">🚀 Скорость</button>
-    <button onclick="upgradeNitro()">⚡ Нитро</button>
-    <p id="stats"></p>
-    <button onclick="closeUpgrades()">Назад</button>
+    <button class="back" onclick="closeGarage()">Назад</button>
   </div>
 
 </div>
 
 <script>
+// ELEMENTS
 const player = document.getElementById("player");
+const menu = document.getElementById("menu");
+const garage = document.getElementById("garage");
 const game = document.getElementById("game");
+const scoreEl = document.getElementById("score");
 const fire = document.getElementById("fire");
 
+// AUDIO
+let engine = new Audio("https://www.soundjay.com/transportation/car-engine-1.mp3");
+engine.loop = true;
+
+let nitroSound = new Audio("https://www.soundjay.com/button/beep-07.wav");
+
+// CARS
 let cars = [
  "https://i.imgur.com/7QZ8Z6F.png",
  "https://i.imgur.com/6X4RZ9C.png",
  "https://i.imgur.com/fz7Xb6p.png"
 ];
 
-let owned = JSON.parse(localStorage.getItem("owned")) || [true,false,false];
-let selected = localStorage.getItem("selected") || 0;
+let selected = 0;
+player.style.background = `url(${cars[selected]}) center/cover`;
 
-let coins = parseInt(localStorage.getItem("coins")) || 0;
-let speedLevel = parseInt(localStorage.getItem("speed")) || 1;
-let nitroLevel = parseInt(localStorage.getItem("nitro")) || 1;
-
+// GAME
 let x = 130;
 let running = false;
 let score = 0;
-let nitro = 100;
-let usingNitro = false;
 
-player.style.background = `url(${cars[selected]}) center/cover`;
-
-// MENU
+// START
 function start(){
   menu.style.display="none";
   running=true;
+  engine.play();
 }
 
+// GARAGE
 function openGarage(){
   menu.style.display="none";
   garage.style.display="flex";
@@ -233,56 +219,9 @@ function closeGarage(){
   menu.style.display="flex";
 }
 
-function openUpgrades(){
-  menu.style.display="none";
-  upgrades.style.display="flex";
-  updateUI();
-}
-
-function closeUpgrades(){
-  upgrades.style.display="none";
-  menu.style.display="flex";
-}
-
-// GARAGE
 function selectCar(i){
-  selected = i;
-  localStorage.setItem("selected", i);
+  selected=i;
   player.style.background = `url(${cars[i]}) center/cover`;
-}
-
-function buyCar(i){
-  if(owned[i]) return selectCar(i);
-
-  let price = [0,50,100][i];
-
-  if(coins >= price){
-    coins -= price;
-    owned[i]=true;
-    save();
-  } else alert("Нет денег");
-}
-
-// UPGRADES
-function upgradeSpeed(){
-  if(coins<20) return;
-  coins-=20;
-  speedLevel++;
-  save();
-}
-
-function upgradeNitro(){
-  if(coins<30) return;
-  coins-=30;
-  nitroLevel++;
-  save();
-}
-
-function save(){
-  localStorage.setItem("coins", coins);
-  localStorage.setItem("speed", speedLevel);
-  localStorage.setItem("nitro", nitroLevel);
-  localStorage.setItem("owned", JSON.stringify(owned));
 }
 
 // CONTROL
@@ -292,36 +231,23 @@ document.addEventListener("touchmove", e=>{
 
 // NITRO
 nitroBtn.onclick = ()=>{
-  if(nitro>10){
-    usingNitro=true;
+  fire.style.opacity=1;
+  player.classList.add("nitro");
+  nitroSound.play();
 
-    fire.style.opacity=1;
-    player.classList.add("nitroActive");
-    game.classList.add("shake");
-
-    setTimeout(()=>{
-      usingNitro=false;
-      fire.style.opacity=0;
-      player.classList.remove("nitroActive");
-      game.classList.remove("shake");
-    },1200);
-  }
+  setTimeout(()=>{
+    fire.style.opacity=0;
+    player.classList.remove("nitro");
+  },1000);
 };
 
 // ENEMIES
 setInterval(()=>{
   if(!running) return;
 
-  let carsEnemy = [
-   "https://i.imgur.com/zYxDCQT.png",
-   "https://i.imgur.com/U3s9QpD.png",
-   "https://i.imgur.com/3sY7X4D.png"
-  ];
-
   let e=document.createElement("div");
   e.className="enemy";
-  let randomCar = carsEnemy[Math.floor(Math.random()*carsEnemy.length)];
-  e.style.background = `url(${randomCar}) center/cover`;
+  e.style.background="url(https://i.imgur.com/zYxDCQT.png) center/cover";
   e.style.left=Math.random()*260+"px";
   game.appendChild(e);
 },800);
@@ -332,19 +258,9 @@ function loop(){
 
     player.style.left = x + "px";
 
-    let gameSpeed = 4 + speedLevel;
-
-    if(usingNitro){
-      gameSpeed += 10 + nitroLevel*2;
-      nitro -= 2;
-      document.body.classList.add("speed");
-    }else{
-      document.body.classList.remove("speed");
-    }
-
     document.querySelectorAll(".enemy").forEach(el=>{
       let top=el.offsetTop;
-      el.style.top=top+gameSpeed+"px";
+      el.style.top=top+6+"px";
 
       if(
         el.offsetTop+80>460 &&
@@ -352,8 +268,7 @@ function loop(){
         el.offsetLeft+50>x
       ){
         running=false;
-        coins+=Math.floor(score/5);
-        save();
+        engine.pause();
         alert("💥 Game Over");
         location.reload();
       }
@@ -363,13 +278,6 @@ function loop(){
 
     score++;
     scoreEl.innerText=score;
-    coinsEl.innerText="💰 "+coins;
-
-    if(!usingNitro && nitro<100){
-      nitro+=0.3*nitroLevel;
-    }
-
-    nitroBar.style.width = nitro + "%";
   }
 
   requestAnimationFrame(loop);
