@@ -1,0 +1,53 @@
+body {
+  margin:0;
+  font-family:system-ui;
+  transition:0.3s;
+}
+
+/* темы */
+body.dark { background:#0f172a; color:#fff; }
+body.light { background:#ffffff; color:#000; }
+
+header {
+  display:flex;
+  gap:10px;
+  padding:15px;
+  background:#1e293b;
+}
+
+#search {
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
+
+#list {
+  max-width:900px;
+  margin:auto;
+}
+
+.post-link {
+  padding:12px;
+  border-bottom:1px solid #ccc;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.post-link:hover {
+  background:rgba(255,255,255,0.1);
+}
+
+.post {
+  max-width:900px;
+  margin:20px auto;
+  padding:20px;
+  border-radius:12px;
+  background:rgba(0,0,0,0.1);
+  animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
+}
