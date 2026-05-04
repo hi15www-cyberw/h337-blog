@@ -1,103 +1,87 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } 
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "ТВОЙ API KEY",
-  authDomain: "ТВОЙ ДОМЕН",
-  projectId: "ТВОЙ ID",
+  apiKey: "AIzaSyCnPp93cxNe9KE-5HM6IXoMAaSEoAJuTZ4",
+  authDomain: "mybrand-blog.firebaseapp.com",
+  projectId: "mybrand-blog",
+  storageBucket: "mybrand-blog.firebasestorage.app",
+  messagingSenderId: "395834373747",
+  appId: "1:395834373747:web:5f076469021145104d1c06"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth = getAuth();
+const db = getFirestore();
 
 const provider = new GoogleAuthProvider();
 
-let user = null;
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userText = document.getElementById("user");
+const postInput = document.getElementById("postInput");
+const addPostBtn = document.getElementById("addPost");
+const postsDiv = document.getElementById("posts");
 
-// LOGIN
+let currentUser = null;
+
+// 🔐 ЛОГИН
 loginBtn.onclick = () => signInWithPopup(auth, provider);
+
+// 🔐 ВЫХОД
 logoutBtn.onclick = () => signOut(auth);
 
-// USER STATE
-onAuthStateChanged(auth, (u) => {
-  user = u;
-  userText.innerText = u ? "Ты вошёл: " + u.displayName : "Ты не вошёл";
-  loadPosts();
+// 🔐 ПРОВЕРКА ПОЛЬЗОВАТЕЛЯ
+onAuthStateChanged(auth, user => {
+  if(user){
+    currentUser = user;
+    userText.innerText = "Ты вошёл как: " + user.displayName;
+  } else {
+    userText.innerText = "Ты не вошёл";
+  }
 });
 
-// ADD POST
-window.addPost = async () => {
-  const text = postInput.value;
-  if (!text || !user) return alert("Войди!");
+// 📝 ДОБАВИТЬ ПОСТ
+addPostBtn.onclick = async () => {
+  if(!currentUser) return alert("Сначала войди");
 
   await addDoc(collection(db, "posts"), {
-    text,
+    text: postInput.value,
+    user: currentUser.displayName,
     likes: 0,
-    author: user.displayName
+    createdAt: Date.now()
   });
 
   postInput.value = "";
-  loadPosts();
 };
 
-// LOAD POSTS
-async function loadPosts() {
-  posts.innerHTML = "";
-  const snap = await getDocs(collection(db, "posts"));
+// 📡 СЛУШАЕМ ПОСТЫ
+onSnapshot(collection(db, "posts"), snapshot => {
+  postsDiv.innerHTML = "";
 
-  snap.forEach(docItem => {
-    const data = docItem.data();
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
 
     const div = document.createElement("div");
     div.className = "post";
 
     div.innerHTML = `
-      <b>${data.author}</b><br>
-      ${data.text}
-      <br><span class="like" onclick="likePost('${docItem.id}', ${data.likes})">❤️ ${data.likes}</span>
+      <b>${data.user}</b>
+      <p>${data.text}</p>
+      <button>❤️ ${data.likes}</button>
     `;
 
-    posts.appendChild(div);
+    div.querySelector("button").onclick = async () => {
+      await updateDoc(doc(db,"posts",docSnap.id), {
+        likes: data.likes + 1
+      });
+    };
+
+    postsDiv.appendChild(div);
   });
-}
-
-// LIKE
-window.likePost = async (id, likes) => {
-  const ref = doc(db, "posts", id);
-  await updateDoc(ref, { likes: likes + 1 });
-  loadPosts();
-};
-
-// TABS
-window.showTips = () => {
-  content.innerHTML = `
-    <h3>🔥 10 советов</h3>
-    <ul>
-      <li>Учись каждый день</li>
-      <li>Делай проекты</li>
-      <li>Не бойся ошибок</li>
-      <li>Пиши код сам</li>
-      <li>Читай документацию</li>
-      <li>Практика > теория</li>
-      <li>Смотри разборы</li>
-      <li>Используй GitHub</li>
-      <li>Делай красиво</li>
-      <li>Не сдавайся</li>
-    </ul>
-  `;
-};
-
-window.showHacks = () => {
-  content.innerHTML = `
-    <h3>⚡ 5 лайфхаков</h3>
-    <ul>
-      <li>Ctrl+C / Ctrl+V — быстрее работы 😎</li>
-      <li>StackOverflow — твой друг</li>
-      <li>ChatGPT — ускоряет x10</li>
-      <li>Темная тема = комфорт</li>
-      <li>Маленькие шаги каждый день</li>
-    </ul>
-  `;
-};
+});
