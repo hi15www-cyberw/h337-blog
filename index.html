@@ -6,7 +6,8 @@
 
   <style>
     body {
-      background: #0f172a;
+      margin: 0;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
       font-family: sans-serif;
       display: flex;
@@ -21,19 +22,48 @@
       border-radius: 20px;
       text-align: center;
       box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      transition: 0.3s;
+      width: 300px;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: none;
+      margin-bottom: 10px;
     }
 
     button {
       padding: 10px 20px;
       border: none;
       border-radius: 10px;
-      margin: 10px;
+      margin: 10px 5px;
       cursor: pointer;
       font-size: 16px;
+      transition: 0.2s;
     }
 
-    .login { background: #22c55e; }
-    .logout { background: #ef4444; }
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .login {
+      background: #22c55e;
+    }
+
+    .logout {
+      background: #ef4444;
+      display: none;
+    }
   </style>
 </head>
 
@@ -41,6 +71,9 @@
 
 <div class="card">
   <h1>MyBrand 🚀</h1>
+
+  <img id="avatar">
+
   <p id="user">Ты не вошёл</p>
 
   <button class="login" id="loginBtn">Войти через Google</button>
@@ -51,7 +84,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
-// 🔑 ТВОЙ Firebase config (НЕ МЕНЯЙ)
+// 🔑 ТВОЙ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCnPp93cxNe9KE-5HM6IXoMAaSEoAJuTZ4",
   authDomain: "mybrand-blog.firebaseapp.com",
@@ -66,25 +99,44 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// элементы
 const userText = document.getElementById("user");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const avatar = document.getElementById("avatar");
 
-document.getElementById("loginBtn").onclick = async () => {
+// вход
+loginBtn.onclick = async () => {
   try {
     await signInWithPopup(auth, provider);
   } catch (e) {
-    alert("Ошибка входа: " + e.message);
+    alert("Ошибка: " + e.message);
   }
 };
 
-document.getElementById("logoutBtn").onclick = async () => {
+// выход
+logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 
+// отслеживание пользователя
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userText.innerText = "Ты вошёл как: " + user.displayName;
+
+    avatar.src = user.photoURL;
+    avatar.style.display = "block";
+
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+
   } else {
     userText.innerText = "Ты не вошёл";
+
+    avatar.style.display = "none";
+
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
   }
 });
 </script>
