@@ -3,95 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>h337 Blog</title>
+<title>MyBrand</title>
 
 <style>
-:root {
-  --bg:#ffffff;
-  --text:#111;
-  --card:#f5f5f5;
-  --accent:#007bff;
-}
-
-body.dark {
-  --bg:#0d1117;
-  --text:#e6edf3;
-  --card:#161b22;
-  --accent:#58a6ff;
-}
-
 body {
   margin:0;
-  font-family:-apple-system;
-  background:var(--bg);
-  color:var(--text);
-  transition:0.3s;
+  font-family:-apple-system, sans-serif;
+  background:#f2f4f7;
+  color:#111;
 }
 
 header {
-  display:flex;
-  justify-content:space-between;
   padding:15px;
+  font-weight:600;
+  font-size:18px;
+  background:white;
   position:sticky;
   top:0;
-  backdrop-filter:blur(10px);
+  border-bottom:1px solid #eee;
 }
 
-.btn {
-  background:var(--accent);
-  color:white;
-  border:none;
-  padding:8px 12px;
-  border-radius:10px;
+.container {
+  padding:15px;
 }
-
-.container { padding:15px; }
 
 .card {
-  background:var(--card);
+  background:white;
+  border-radius:16px;
   padding:15px;
-  border-radius:15px;
-  margin-bottom:15px;
-  animation:fadeIn 0.4s ease;
+  margin-bottom:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+  animation:fade 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(15px);}
+@keyframes fade {
+  from {opacity:0; transform:translateY(10px);}
   to {opacity:1;}
 }
 
 textarea {
   width:100%;
+  border:none;
+  background:#f5f5f5;
   padding:10px;
   border-radius:10px;
+  margin-bottom:10px;
+}
+
+button {
+  background:#007aff;
+  color:white;
   border:none;
+  padding:10px;
+  border-radius:10px;
 }
 
 .like {
   margin-top:10px;
+  color:#888;
   cursor:pointer;
-  color:gray;
 }
 
 .like.active {
-  color:red;
+  color:#007aff;
+  font-weight:600;
 }
-
 </style>
 </head>
 
 <body>
 
-<header>
-  <h3>🔥 h337 Blog</h3>
-  <button class="btn" onclick="toggleTheme()">🌙</button>
-</header>
+<header>MyBrand</header>
 
 <div class="container">
 
 <div class="card">
   <textarea id="postInput" placeholder="Напиши лайфхак..."></textarea>
-  <button class="btn" onclick="addPost()">Опубликовать</button>
+  <button onclick="addPost()">Опубликовать</button>
 </div>
 
 <div id="posts"></div>
@@ -99,7 +87,22 @@ textarea {
 </div>
 
 <script>
-let posts = JSON.parse(localStorage.getItem("posts") || "[]");
+
+let defaultPosts = [
+"Пей больше воды — это улучшает концентрацию",
+"Делай перерывы каждые 50 минут",
+"Ставь цели на день — так ты будешь продуктивнее",
+"Спи не менее 7–8 часов",
+"Убери уведомления — меньше отвлечений",
+"Планируй день вечером заранее",
+"Делай сложные задачи утром",
+"Читай хотя бы 10 страниц в день",
+"Занимайся спортом — даже 10 минут важно",
+"Ограничь соцсети — экономишь время"
+];
+
+let posts = JSON.parse(localStorage.getItem("posts")) || 
+defaultPosts.map(text => ({text, likes:0, liked:false}));
 
 function save() {
   localStorage.setItem("posts", JSON.stringify(posts));
@@ -116,7 +119,7 @@ function render() {
     div.innerHTML = `
       <p>${post.text}</p>
       <div class="like ${post.liked ? "active":""}" onclick="like(${i})">
-        ❤️ ${post.likes}
+        👍 ${post.likes}
       </div>
     `;
 
@@ -128,7 +131,7 @@ function addPost() {
   let text = document.getElementById("postInput").value;
   if (!text) return;
 
-  posts.unshift({ text:text, likes:0, liked:false });
+  posts.unshift({text, likes:0, liked:false});
   save();
   render();
 
@@ -136,27 +139,18 @@ function addPost() {
 }
 
 function like(i) {
-  let post = posts[i];
+  let p = posts[i];
 
-  if (post.liked) {
-    post.likes--;
-    post.liked=false;
+  if (p.liked) {
+    p.likes--;
+    p.liked=false;
   } else {
-    post.likes++;
-    post.liked=true;
+    p.likes++;
+    p.liked=true;
   }
 
   save();
   render();
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme", document.body.classList.contains("dark"));
-}
-
-if (localStorage.getItem("theme") === "true") {
-  document.body.classList.add("dark");
 }
 
 render();
