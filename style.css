@@ -1,53 +1,70 @@
 body {
-  margin:0;
-  font-family:system-ui;
-  transition:0.3s;
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
 }
 
-/* темы */
-body.dark { background:#0f172a; color:#fff; }
-body.light { background:#ffffff; color:#000; }
-
-header {
-  display:flex;
-  gap:10px;
-  padding:15px;
-  background:#1e293b;
+.app {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
 }
 
-#search {
-  flex:1;
-  padding:10px;
-  border-radius:8px;
-  border:none;
+.logo {
+  text-align: center;
+  animation: fade 1s ease;
 }
 
-#list {
-  max-width:900px;
-  margin:auto;
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  animation: fade 0.5s ease;
 }
 
-.post-link {
-  padding:12px;
-  border-bottom:1px solid #ccc;
-  cursor:pointer;
-  transition:0.2s;
+button {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-.post-link:hover {
-  background:rgba(255,255,255,0.1);
+#loginBtn {
+  background: #22c55e;
+}
+
+#logoutBtn {
+  background: #ef4444;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.tabs button {
+  background: #3b82f6;
+  color: white;
 }
 
 .post {
-  max-width:900px;
-  margin:20px auto;
-  padding:20px;
-  border-radius:12px;
-  background:rgba(0,0,0,0.1);
-  animation:fadeIn 0.4s ease;
+  background: #1e293b;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
 }
 
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(10px);}
+.like {
+  color: red;
+  cursor: pointer;
+}
+
+@keyframes fade {
+  from {opacity:0; transform: translateY(10px);}
   to {opacity:1;}
 }
