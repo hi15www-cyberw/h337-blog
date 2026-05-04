@@ -3,157 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyBrand</title>
+<title>MyBrand 🚀</title>
 
 <style>
+:root {
+  --bg:#fff;
+  --text:#111;
+  --card:#f5f5f7;
+}
+
+.dark {
+  --bg:#000;
+  --text:#fff;
+  --card:#1c1c1e;
+}
+
 body {
   margin:0;
-  font-family:-apple-system, sans-serif;
-  background:#f2f4f7;
-  color:#111;
+  font-family:-apple-system, BlinkMacSystemFont;
+  background:var(--bg);
+  color:var(--text);
+  transition:0.3s;
 }
 
 header {
+  display:flex;
+  justify-content:space-between;
   padding:15px;
-  font-weight:600;
-  font-size:18px;
-  background:white;
-  position:sticky;
-  top:0;
-  border-bottom:1px solid #eee;
+  font-size:20px;
 }
 
-.container {
-  padding:15px;
-}
-
-.card {
-  background:white;
-  border-radius:16px;
-  padding:15px;
-  margin-bottom:12px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.05);
-  animation:fade 0.3s ease;
+.post {
+  height:100vh;
+  scroll-snap-align:start;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  animation:fade 0.5s;
 }
 
 @keyframes fade {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1;}
+  from {opacity:0; transform:scale(0.9);}
+  to {opacity:1; transform:scale(1);}
 }
 
-textarea {
-  width:100%;
-  border:none;
-  background:#f5f5f5;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:10px;
+.actions {
+  position:absolute;
+  right:20px;
+  bottom:100px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
 }
 
 button {
-  background:#007aff;
-  color:white;
-  border:none;
   padding:10px;
-  border-radius:10px;
+  border-radius:50%;
+  border:none;
 }
 
-.like {
-  margin-top:10px;
-  color:#888;
-  cursor:pointer;
-}
-
-.like.active {
-  color:#007aff;
-  font-weight:600;
+.container {
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
 }
 </style>
 </head>
 
 <body>
 
-<header>MyBrand</header>
+<header>
+  MyBrand 🚀
+  <div>
+    <button onclick="toggleTheme()">🌙</button>
+    <button onclick="login()">🔐</button>
+  </div>
+</header>
 
-<div class="container">
+<div class="container" id="posts"></div>
 
-<div class="card">
-  <textarea id="postInput" placeholder="Напиши лайфхак..."></textarea>
-  <button onclick="addPost()">Опубликовать</button>
-</div>
-
-<div id="posts"></div>
-
-</div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 
 <script>
+// 🔴 ВСТАВЬ СЮДА СВОЙ CONFIG ИЗ FIREBASE
+const firebaseConfig = {
+  apiKey: "ТВОЙ",
+  authDomain: "ТВОЙ",
+  projectId: "ТВОЙ",
+};
 
-let defaultPosts = [
-"Пей больше воды — это улучшает концентрацию",
-"Делай перерывы каждые 50 минут",
-"Ставь цели на день — так ты будешь продуктивнее",
-"Спи не менее 7–8 часов",
-"Убери уведомления — меньше отвлечений",
-"Планируй день вечером заранее",
-"Делай сложные задачи утром",
-"Читай хотя бы 10 страниц в день",
-"Занимайся спортом — даже 10 минут важно",
-"Ограничь соцсети — экономишь время"
-];
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-let posts = JSON.parse(localStorage.getItem("posts")) || 
-defaultPosts.map(text => ({text, likes:0, liked:false}));
-
-function save() {
-  localStorage.setItem("posts", JSON.stringify(posts));
+function login(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
 }
 
-function render() {
-  let container = document.getElementById("posts");
-  container.innerHTML = "";
+auth.onAuthStateChanged(user=>{
+  if(user){
+    console.log("Вошёл:", user.displayName);
+  }
+});
 
-  posts.forEach((post, i) => {
-    let div = document.createElement("div");
-    div.className = "card";
+function loadPosts(){
+  db.collection("posts").onSnapshot(snapshot=>{
+    let container = document.getElementById("posts");
+    container.innerHTML="";
+    snapshot.forEach(doc=>{
+      let p = doc.data();
 
-    div.innerHTML = `
-      <p>${post.text}</p>
-      <div class="like ${post.liked ? "active":""}" onclick="like(${i})">
-        👍 ${post.likes}
-      </div>
-    `;
+      container.innerHTML += `
+        <div class="post">
+          <h2>${p.text}</h2>
 
-    container.appendChild(div);
+          <div class="actions">
+            <button onclick="like('${doc.id}')">❤️ ${p.likes||0}</button>
+            <button onclick="comment('${doc.id}')">💬</button>
+          </div>
+        </div>
+      `;
+    });
   });
 }
 
-function addPost() {
-  let text = document.getElementById("postInput").value;
-  if (!text) return;
-
-  posts.unshift({text, likes:0, liked:false});
-  save();
-  render();
-
-  document.getElementById("postInput").value="";
+function like(id){
+  let ref = db.collection("posts").doc(id);
+  ref.update({
+    likes: firebase.firestore.FieldValue.increment(1)
+  });
 }
 
-function like(i) {
-  let p = posts[i];
+function comment(id){
+  let text = prompt("Комментарий:");
+  if(!text) return;
 
-  if (p.liked) {
-    p.likes--;
-    p.liked=false;
-  } else {
-    p.likes++;
-    p.liked=true;
-  }
+  db.collection("posts").doc(id).collection("comments").add({
+    text:text,
+    date:Date.now()
+  });
 
-  save();
-  render();
+  alert("Добавлено 💬");
 }
 
-render();
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+}
+
+loadPosts();
 </script>
 
 </body>
