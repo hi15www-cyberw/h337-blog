@@ -3,68 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Racing Game 🚗</title>
+<title>MyBrand Racing 🚗</title>
 
 <style>
-body {
+body{
   margin:0;
+  font-family:-apple-system;
   background:#0f172a;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  font-family:sans-serif;
   color:white;
 }
 
-.game {
-  width:300px;
-  height:500px;
+.game{
+  width:320px;
+  height:550px;
   background:#111;
+  border-radius:25px;
   overflow:hidden;
   position:relative;
-  border-radius:20px;
-  box-shadow:0 0 30px black;
 }
 
-.road {
+/* ROAD */
+.road{
   position:absolute;
   width:100%;
   height:200%;
   background:linear-gradient(#333 50%, #222 50%);
   background-size:100% 40px;
-  animation:roadMove 0.5s linear infinite;
+  animation:roadMove 0.25s linear infinite;
+}
+@keyframes roadMove{
+  from{transform:translateY(0);}
+  to{transform:translateY(40px);}
 }
 
-@keyframes roadMove {
-  from {transform:translateY(0);}
-  to {transform:translateY(40px);}
-}
-
-.player {
-  width:50px;
-  height:80px;
-  background:#22c55e;
+/* PLAYER */
+.player{
+  width:60px;
+  height:90px;
   position:absolute;
   bottom:20px;
-  left:125px;
-  border-radius:10px;
+  left:130px;
+  background-size:cover;
 }
 
-.enemy {
-  width:50px;
-  height:80px;
-  background:#ef4444;
+/* ENEMY */
+.enemy{
+  width:60px;
+  height:90px;
   position:absolute;
   top:-100px;
-  border-radius:10px;
+  background:red;
 }
 
-.score {
+/* UI */
+.ui{
   position:absolute;
   top:10px;
-  left:10px;
-  font-size:18px;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  padding:0 10px;
+}
+
+/* MENU */
+.menu, .garage{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:#000c;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+button{
+  padding:10px 20px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* GARAGE */
+.car{
+  width:80px;
+  height:120px;
+  margin:10px;
+  border:2px solid white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 </style>
 </head>
@@ -72,70 +105,145 @@ body {
 <body>
 
 <div class="game" id="game">
+
   <div class="road"></div>
+
   <div class="player" id="player"></div>
-  <div class="score" id="score">0</div>
+
+  <div class="ui">
+    <div id="score">0</div>
+    <div id="coins">💰 0</div>
+  </div>
+
+  <!-- MENU -->
+  <div class="menu" id="menu">
+    <h2>🚗 Racing</h2>
+    <button onclick="start()">Start</button>
+    <button onclick="openGarage()">Garage</button>
+  </div>
+
+  <!-- GARAGE -->
+  <div class="garage" id="garage" style="display:none;">
+    <h3>🚗 Гараж</h3>
+
+    <div class="car" onclick="buyCar(0)">🚗<br>Free</div>
+    <div class="car" onclick="buyCar(1)">🚙<br>50💰</div>
+    <div class="car" onclick="buyCar(2)">🏎<br>100💰</div>
+
+    <button onclick="closeGarage()">Назад</button>
+  </div>
+
 </div>
 
 <script>
 const player = document.getElementById("player");
-const game = document.getElementById("game");
-const scoreEl = document.getElementById("score");
 
-let playerX = 125;
-let enemies = [];
-let score = 0;
-let speed = 4;
+let cars = ["🚗","🚙","🏎"];
+let owned = JSON.parse(localStorage.getItem("owned")) || [true,false,false];
+let selected = localStorage.getItem("selected") || 0;
+let coins = parseInt(localStorage.getItem("coins")) || 0;
 
-// управление
-document.addEventListener("touchmove", e => {
-  playerX = e.touches[0].clientX - 25;
-});
+player.innerText = cars[selected];
 
-document.addEventListener("mousemove", e => {
-  playerX = e.clientX - game.offsetLeft - 25;
-});
-
-// спавн врагов
-setInterval(() => {
-  const enemy = document.createElement("div");
-  enemy.className = "enemy";
-  enemy.style.left = Math.random() * 250 + "px";
-  game.appendChild(enemy);
-  enemies.push(enemy);
-}, 1000);
-
-// игровой цикл
-function gameLoop(){
-  player.style.left = playerX + "px";
-
-  enemies.forEach((enemy, i) => {
-    let top = enemy.offsetTop;
-    enemy.style.top = top + speed + "px";
-
-    // столкновение
-    if(
-      enemy.offsetTop + 80 > 420 &&
-      enemy.offsetLeft < playerX + 50 &&
-      enemy.offsetLeft + 50 > playerX
-    ){
-      alert("💥 Game Over! Очки: " + score);
-      location.reload();
-    }
-
-    // удаление
-    if(top > 500){
-      enemy.remove();
-      enemies.splice(i,1);
-      score++;
-      scoreEl.innerText = score;
-    }
-  });
-
-  requestAnimationFrame(gameLoop);
+// открыть гараж
+function openGarage(){
+  menu.style.display="none";
+  garage.style.display="flex";
 }
 
-gameLoop();
+// закрыть гараж
+function closeGarage(){
+  garage.style.display="none";
+  menu.style.display="flex";
+}
+
+// купить или выбрать
+function buyCar(i){
+
+  if(owned[i]){
+    selected = i;
+    localStorage.setItem("selected", i);
+    player.innerText = cars[i];
+    alert("Выбрано!");
+    return;
+  }
+
+  let price = [0,50,100][i];
+
+  if(coins >= price){
+    coins -= price;
+    owned[i] = true;
+
+    localStorage.setItem("coins", coins);
+    localStorage.setItem("owned", JSON.stringify(owned));
+
+    alert("Куплено!");
+  } else {
+    alert("Недостаточно монет!");
+  }
+}
+
+// GAME
+let x = 130;
+let running=false;
+let score=0;
+
+function start(){
+  menu.style.display="none";
+  running=true;
+}
+
+// движение
+document.addEventListener("touchmove", e=>{
+  x = e.touches[0].clientX - 30;
+});
+
+// враги
+setInterval(()=>{
+  if(!running) return;
+
+  let e = document.createElement("div");
+  e.className="enemy";
+  e.style.left=Math.random()*260+"px";
+  game.appendChild(e);
+},800);
+
+// цикл
+function loop(){
+  if(running){
+
+    player.style.left = x + "px";
+
+    document.querySelectorAll(".enemy").forEach(el=>{
+      let top = el.offsetTop;
+      el.style.top = top + 5 + "px";
+
+      if(
+        el.offsetTop+80>460 &&
+        el.offsetLeft < x+50 &&
+        el.offsetLeft+50 > x
+      ){
+        running=false;
+
+        coins += Math.floor(score/5);
+        localStorage.setItem("coins", coins);
+
+        alert("💥 Game Over! +"+Math.floor(score/5)+"💰");
+        location.reload();
+      }
+
+      if(top>600) el.remove();
+    });
+
+    score++;
+    document.getElementById("score").innerText = score;
+    document.getElementById("coins").innerText = "💰 "+coins;
+  }
+
+  requestAnimationFrame(loop);
+}
+
+loop();
 </script>
 
 </body>
