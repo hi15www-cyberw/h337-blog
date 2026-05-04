@@ -1,6 +1,93 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black;color:white;text-align:center;margin-top:100px;">
-  <h1>САЙТ РАБОТАЕТ</h1>
+<head>
+  <meta charset="UTF-8">
+  <title>MyBrand 🚀</title>
+
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      margin: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .login { background: #22c55e; }
+    .logout { background: #ef4444; }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>MyBrand 🚀</h1>
+  <p id="user">Ты не вошёл</p>
+
+  <button class="login" id="loginBtn">Войти через Google</button>
+  <button class="logout" id="logoutBtn">Выйти</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+// 🔑 ТВОЙ Firebase config (НЕ МЕНЯЙ)
+const firebaseConfig = {
+  apiKey: "AIzaSyCnPp93cxNe9KE-5HM6IXoMAaSEoAJuTZ4",
+  authDomain: "mybrand-blog.firebaseapp.com",
+  projectId: "mybrand-blog",
+  storageBucket: "mybrand-blog.firebasestorage.app",
+  messagingSenderId: "395834373747",
+  appId: "1:395834373747:web:fbd42c5c9c3b638f4d1c06",
+  measurementId: "G-Q8350N29M7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const userText = document.getElementById("user");
+
+document.getElementById("loginBtn").onclick = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    alert("Ошибка входа: " + e.message);
+  }
+};
+
+document.getElementById("logoutBtn").onclick = async () => {
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    userText.innerText = "Ты вошёл как: " + user.displayName;
+  } else {
+    userText.innerText = "Ты не вошёл";
+  }
+});
+</script>
+
 </body>
 </html>
