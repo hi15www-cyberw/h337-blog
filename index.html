@@ -1,45 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyBrand 🚀</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyBrand 🚀</title>
+
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div class="app">
 
-  <h1 class="logo">MyBrand 🚀</h1>
-
-  <!-- USER -->
   <div class="card">
+    <h1>MyBrand 🚀</h1>
     <p id="user">Ты не вошёл</p>
-    <button id="loginBtn">Войти через Google</button>
-    <button id="logoutBtn">Выйти</button>
+    <button class="login" id="loginBtn">Войти через Google</button>
+    <button class="logout" id="logoutBtn">Выйти</button>
   </div>
 
-  <!-- POSTS -->
   <div class="card">
-    <h2>📝 Посты</h2>
-    <input id="postInput" placeholder="Написать пост...">
-    <button onclick="addPost()">Опубликовать</button>
-
-    <div id="posts"></div>
+    <h3>Создать пост</h3>
+    <textarea id="postInput" placeholder="Напиши что-нибудь..."></textarea>
+    <button class="postBtn" id="addPost">Опубликовать</button>
   </div>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button onclick="showTips()">Советы</button>
-    <button onclick="showHacks()">Лайфхаки</button>
-  </div>
-
-  <div id="content" class="card"></div>
+  <div id="posts"></div>
 
 </div>
 
-<script type="module" src="script.js"></script>
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
