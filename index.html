@@ -3,24 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Racing Pro 🚗</title>
+<title>Racing 🚗</title>
 
 <style>
 body{
   margin:0;
-  background:linear-gradient(#0f172a,#020617);
+  background:#0f172a;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  font-family:sans-serif;
 }
 
 .game{
   width:320px;
   height:550px;
   background:#111;
-  border-radius:25px;
+  border-radius:20px;
   overflow:hidden;
   position:relative;
 }
@@ -32,8 +31,9 @@ body{
   height:200%;
   background:linear-gradient(#333 50%, #222 50%);
   background-size:100% 40px;
-  animation:roadMove 0.25s linear infinite;
+  animation:roadMove 0.3s linear infinite;
 }
+
 @keyframes roadMove{
   from{transform:translateY(0);}
   to{transform:translateY(40px);}
@@ -46,9 +46,7 @@ body{
   position:absolute;
   bottom:20px;
   left:130px;
-  background-size:cover;
-  filter:drop-shadow(0 5px 8px black);
-  transition:0.2s;
+  background:url('https://i.imgur.com/7QZ8Z6F.png') center/cover;
 }
 
 /* ENEMY */
@@ -60,19 +58,8 @@ body{
   background-size:cover;
 }
 
-/* UI */
-.ui{
-  position:absolute;
-  top:10px;
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  padding:0 10px;
-  color:white;
-}
-
 /* MENU */
-.menu,.garage{
+.menu{
   position:absolute;
   width:100%;
   height:100%;
@@ -81,56 +68,14 @@ body{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  z-index:5;
 }
 
 /* BUTTON */
 button{
   padding:12px 25px;
-  margin-top:12px;
+  margin-top:10px;
   border:none;
-  border-radius:12px;
-  font-size:16px;
-  cursor:pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.start{background:#22c55e;color:white;}
-.gar{background:#3b82f6;color:white;}
-.back{background:#ef4444;color:white;}
-
-/* GARAGE */
-.car{
-  width:80px;
-  height:120px;
-  margin:8px;
-  background-size:cover;
-  border:2px solid white;
-}
-
-/* NITRO */
-.nitroBtn{
-  position:absolute;
-  bottom:10px;
-  right:10px;
-  background:#facc15;
-  z-index:2;
-}
-
-.fire{
-  position:absolute;
-  bottom:-10px;
-  width:20px;
-  height:30px;
-  background:linear-gradient(orange,red);
-  border-radius:50%;
-  opacity:0;
-  filter:blur(4px);
-}
-
-/* EFFECT */
-.nitro{
-  box-shadow:0 0 25px #22c55e;
+  border-radius:10px;
 }
 </style>
 </head>
@@ -141,87 +86,28 @@ button{
 
   <div class="road"></div>
 
-  <div class="player" id="player">
-    <div class="fire" id="fire"></div>
-  </div>
+  <div class="player" id="player"></div>
 
-  <div class="ui">
-    <div id="score">0</div>
-  </div>
-
-  <button class="nitroBtn" id="nitroBtn">⚡</button>
-
-  <!-- MENU -->
   <div class="menu" id="menu">
     <h2>🚗 Racing</h2>
-    <button class="start" onclick="start()">Start</button>
-    <button class="gar" onclick="openGarage()">Garage</button>
-  </div>
-
-  <!-- GARAGE -->
-  <div class="garage" id="garage" style="display:none;">
-    <h3>🚗 Выбор машины</h3>
-
-    <div class="car" onclick="selectCar(0)" style="background:url('https://i.imgur.com/7QZ8Z6F.png') center/cover"></div>
-    <div class="car" onclick="selectCar(1)" style="background:url('https://i.imgur.com/6X4RZ9C.png') center/cover"></div>
-    <div class="car" onclick="selectCar(2)" style="background:url('https://i.imgur.com/fz7Xb6p.png') center/cover"></div>
-
-    <button class="back" onclick="closeGarage()">Назад</button>
+    <button onclick="start()">Start</button>
   </div>
 
 </div>
 
 <script>
-// ELEMENTS
 const player = document.getElementById("player");
-const menu = document.getElementById("menu");
-const garage = document.getElementById("garage");
 const game = document.getElementById("game");
-const scoreEl = document.getElementById("score");
-const fire = document.getElementById("fire");
+const menu = document.getElementById("menu");
 
-// AUDIO
-let engine = new Audio("https://www.soundjay.com/transportation/car-engine-1.mp3");
-engine.loop = true;
-
-let nitroSound = new Audio("https://www.soundjay.com/button/beep-07.wav");
-
-// CARS
-let cars = [
- "https://i.imgur.com/7QZ8Z6F.png",
- "https://i.imgur.com/6X4RZ9C.png",
- "https://i.imgur.com/fz7Xb6p.png"
-];
-
-let selected = 0;
-player.style.background = `url(${cars[selected]}) center/cover`;
-
-// GAME
 let x = 130;
 let running = false;
-let score = 0;
 
 // START
 function start(){
   menu.style.display="none";
-  running=true;
-  engine.play();
-}
-
-// GARAGE
-function openGarage(){
-  menu.style.display="none";
-  garage.style.display="flex";
-}
-
-function closeGarage(){
-  garage.style.display="none";
-  menu.style.display="flex";
-}
-
-function selectCar(i){
-  selected=i;
-  player.style.background = `url(${cars[i]}) center/cover`;
+  running = true;
+  spawnEnemy(); // запуск спавна
 }
 
 // CONTROL
@@ -229,28 +115,28 @@ document.addEventListener("touchmove", e=>{
   x = e.touches[0].clientX - 30;
 });
 
-// NITRO
-nitroBtn.onclick = ()=>{
-  fire.style.opacity=1;
-  player.classList.add("nitro");
-  nitroSound.play();
-
-  setTimeout(()=>{
-    fire.style.opacity=0;
-    player.classList.remove("nitro");
-  },1000);
-};
-
-// ENEMIES
-setInterval(()=>{
+// 🚗 УМНЫЙ СПАВН ВРАГОВ
+function spawnEnemy(){
   if(!running) return;
 
-  let e=document.createElement("div");
-  e.className="enemy";
-  e.style.background="url(https://i.imgur.com/zYxDCQT.png) center/cover";
-  e.style.left=Math.random()*260+"px";
+  let e = document.createElement("div");
+  e.className = "enemy";
+
+  let cars = [
+   "https://i.imgur.com/zYxDCQT.png",
+   "https://i.imgur.com/U3s9QpD.png",
+   "https://i.imgur.com/3sY7X4D.png"
+  ];
+
+  let randomCar = cars[Math.floor(Math.random()*cars.length)];
+  e.style.background = `url(${randomCar}) center/cover`;
+
+  e.style.left = Math.random()*260 + "px";
   game.appendChild(e);
-},800);
+
+  // 🔥 ВАЖНО: случайная задержка (меньше врагов)
+  setTimeout(spawnEnemy, Math.random()*2000 + 1200);
+}
 
 // LOOP
 function loop(){
@@ -259,25 +145,22 @@ function loop(){
     player.style.left = x + "px";
 
     document.querySelectorAll(".enemy").forEach(el=>{
-      let top=el.offsetTop;
-      el.style.top=top+6+"px";
+      let top = el.offsetTop;
+      el.style.top = top + 5 + "px";
 
+      // столкновение
       if(
         el.offsetTop+80>460 &&
-        el.offsetLeft<x+50 &&
-        el.offsetLeft+50>x
+        el.offsetLeft < x+50 &&
+        el.offsetLeft+50 > x
       ){
         running=false;
-        engine.pause();
         alert("💥 Game Over");
         location.reload();
       }
 
       if(top>600) el.remove();
     });
-
-    score++;
-    scoreEl.innerText=score;
   }
 
   requestAnimationFrame(loop);
