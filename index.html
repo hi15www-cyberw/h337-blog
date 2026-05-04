@@ -1,115 +1,155 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>h337 Blog</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>h337 Blog</title>
 
-  <style>
-    :root {
-      --bg: #ffffff;
-      --text: #111;
-      --card: #f5f5f5;
-    }
+<style>
+:root {
+  --bg:#ffffff;
+  --text:#111;
+  --card:#f5f5f5;
+  --accent:#007bff;
+}
 
-    body.dark {
-      --bg: #0d1117;
-      --text: #e6edf3;
-      --card: #161b22;
-    }
+body.dark {
+  --bg:#0d1117;
+  --text:#e6edf3;
+  --card:#161b22;
+  --accent:#58a6ff;
+}
 
-    body {
-      margin: 0;
-      font-family: -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      transition: 0.3s;
-    }
+body {
+  margin:0;
+  font-family:-apple-system;
+  background:var(--bg);
+  color:var(--text);
+  transition:0.3s;
+}
 
-    header {
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      position: sticky;
-      top: 0;
-    }
+header {
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  position:sticky;
+  top:0;
+  backdrop-filter:blur(10px);
+}
 
-    .btn {
-      padding: 8px 12px;
-      border-radius: 10px;
-      border: none;
-      background: #007bff;
-      color: white;
-    }
+.btn {
+  background:var(--accent);
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+}
 
-    .container {
-      padding: 15px;
-    }
+.container { padding:15px; }
 
-    .card {
-      background: var(--card);
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 15px;
-      animation: fadeIn 0.5s ease;
-    }
+.card {
+  background:var(--card);
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:15px;
+  animation:fadeIn 0.4s ease;
+}
 
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(10px);}
-      to {opacity:1;}
-    }
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(15px);}
+  to {opacity:1;}
+}
 
-    textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      margin-top: 10px;
-    }
+textarea {
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+}
 
-    .comment {
-      margin-top: 10px;
-      padding: 10px;
-      background: var(--bg);
-      border-radius: 10px;
-    }
-  </style>
+.like {
+  margin-top:10px;
+  cursor:pointer;
+  color:gray;
+}
+
+.like.active {
+  color:red;
+}
+
+</style>
 </head>
 
 <body>
 
 <header>
-  <h3>h337 Blog</h3>
+  <h3>🔥 h337 Blog</h3>
   <button class="btn" onclick="toggleTheme()">🌙</button>
 </header>
 
 <div class="container">
 
-  <div class="card">
-    <h3>💡 Лайфхак</h3>
-    <p>Пей больше воды — это улучшает концентрацию 💧</p>
-  </div>
+<div class="card">
+  <textarea id="postInput" placeholder="Напиши лайфхак..."></textarea>
+  <button class="btn" onclick="addPost()">Опубликовать</button>
+</div>
 
-  <div class="card">
-    <h3>✍️ Написать пост</h3>
-    <textarea id="postInput" placeholder="Напиши что-нибудь..."></textarea>
-    <button class="btn" onclick="addPost()">Опубликовать</button>
-  </div>
-
-  <div id="posts"></div>
-
-  <div class="card">
-    <h3>💬 Комментарии</h3>
-    <textarea id="commentInput" placeholder="Комментарий..."></textarea>
-    <button class="btn" onclick="addComment()">Отправить</button>
-    <div id="comments"></div>
-  </div>
+<div id="posts"></div>
 
 </div>
 
 <script>
+let posts = JSON.parse(localStorage.getItem("posts") || "[]");
+
+function save() {
+  localStorage.setItem("posts", JSON.stringify(posts));
+}
+
+function render() {
+  let container = document.getElementById("posts");
+  container.innerHTML = "";
+
+  posts.forEach((post, i) => {
+    let div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <p>${post.text}</p>
+      <div class="like ${post.liked ? "active":""}" onclick="like(${i})">
+        ❤️ ${post.likes}
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function addPost() {
+  let text = document.getElementById("postInput").value;
+  if (!text) return;
+
+  posts.unshift({ text:text, likes:0, liked:false });
+  save();
+  render();
+
+  document.getElementById("postInput").value="";
+}
+
+function like(i) {
+  let post = posts[i];
+
+  if (post.liked) {
+    post.likes--;
+    post.liked=false;
+  } else {
+    post.likes++;
+    post.liked=true;
+  }
+
+  save();
+  render();
+}
+
 function toggleTheme() {
   document.body.classList.toggle("dark");
   localStorage.setItem("theme", document.body.classList.contains("dark"));
@@ -119,29 +159,7 @@ if (localStorage.getItem("theme") === "true") {
   document.body.classList.add("dark");
 }
 
-function addPost() {
-  let text = document.getElementById("postInput").value;
-  if (!text) return;
-
-  let div = document.createElement("div");
-  div.className = "card";
-  div.innerText = text;
-
-  document.getElementById("posts").prepend(div);
-  document.getElementById("postInput").value = "";
-}
-
-function addComment() {
-  let text = document.getElementById("commentInput").value;
-  if (!text) return;
-
-  let div = document.createElement("div");
-  div.className = "comment";
-  div.innerText = text;
-
-  document.getElementById("comments").appendChild(div);
-  document.getElementById("commentInput").value = "";
-}
+render();
 </script>
 
 </body>
