@@ -1,70 +1,64 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: white;
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 
-.app {
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
+.app{
+  width:95%;
+  max-width:500px;
 }
 
-.logo {
-  text-align: center;
-  animation: fade 1s ease;
+.card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  margin-bottom:20px;
+  animation:fadeIn 1s;
 }
 
-.card {
-  background: rgba(255,255,255,0.05);
-  padding: 15px;
-  margin-top: 15px;
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  animation: fade 0.5s ease;
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
-button {
-  margin: 5px;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
+h1{text-align:center;}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:10px;
+  transition:0.3s;
 }
 
-#loginBtn {
-  background: #22c55e;
+.login{background:#22c55e;}
+.logout{background:#ef4444;}
+.postBtn{background:#3b82f6;}
+
+button:hover{
+  transform:scale(1.05);
 }
 
-#logoutBtn {
-  background: #ef4444;
+textarea{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-top:10px;
 }
 
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-}
-
-.tabs button {
-  background: #3b82f6;
-  color: white;
-}
-
-.post {
-  background: #1e293b;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 10px;
-}
-
-.like {
-  color: red;
-  cursor: pointer;
-}
-
-@keyframes fade {
-  from {opacity:0; transform: translateY(10px);}
-  to {opacity:1;}
+.post{
+  margin-top:15px;
+  padding:10px;
+  background:rgba(255,255,255,0.08);
+  border-radius:15px;
 }
