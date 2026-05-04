@@ -5,101 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyBrand Racing 🚗</title>
 
-<style>
-body{
-  margin:0;
-  font-family:-apple-system;
-  background:#0f172a;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  color:white;
-}
-
-.game{
-  width:320px;
-  height:550px;
-  background:#111;
-  border-radius:25px;
-  overflow:hidden;
-  position:relative;
-}
-
-/* ROAD */
-.road{
-  position:absolute;
-  width:100%;
-  height:200%;
-  background:linear-gradient(#333 50%, #222 50%);
-  background-size:100% 40px;
-  animation:roadMove 0.25s linear infinite;
-}
-@keyframes roadMove{
-  from{transform:translateY(0);}
-  to{transform:translateY(40px);}
-}
-
-/* PLAYER */
-.player{
-  width:60px;
-  height:90px;
-  position:absolute;
-  bottom:20px;
-  left:130px;
-  background-size:cover;
-}
-
-/* ENEMY */
-.enemy{
-  width:60px;
-  height:90px;
-  position:absolute;
-  top:-100px;
-  background:red;
-}
-
-/* UI */
-.ui{
-  position:absolute;
-  top:10px;
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  padding:0 10px;
-}
-
-/* MENU */
-.menu, .garage{
-  position:absolute;
-  width:100%;
-  height:100%;
-  background:#000c;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-}
-
-button{
-  padding:10px 20px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-/* GARAGE */
-.car{
-  width:80px;
-  height:120px;
-  margin:10px;
-  border:2px solid white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -108,143 +14,53 @@ button{
 
   <div class="road"></div>
 
-  <div class="player" id="player"></div>
+  <div class="player" id="player">
+    <div class="fire" id="fire"></div>
+  </div>
 
   <div class="ui">
     <div id="score">0</div>
     <div id="coins">💰 0</div>
   </div>
 
+  <!-- NITRO -->
+  <div class="nitroBar" id="nitroBar"></div>
+  <button class="nitroBtn" id="nitroBtn">⚡</button>
+
   <!-- MENU -->
   <div class="menu" id="menu">
     <h2>🚗 Racing</h2>
     <button onclick="start()">Start</button>
     <button onclick="openGarage()">Garage</button>
+    <button onclick="openUpgrades()">Upgrades</button>
   </div>
 
   <!-- GARAGE -->
   <div class="garage" id="garage" style="display:none;">
     <h3>🚗 Гараж</h3>
 
-    <div class="car" onclick="buyCar(0)">🚗<br>Free</div>
-    <div class="car" onclick="buyCar(1)">🚙<br>50💰</div>
-    <div class="car" onclick="buyCar(2)">🏎<br>100💰</div>
+    <div class="car" onclick="buyCar(0)">🚗</div>
+    <div class="car" onclick="buyCar(1)">🚙 50💰</div>
+    <div class="car" onclick="buyCar(2)">🏎 100💰</div>
 
     <button onclick="closeGarage()">Назад</button>
   </div>
 
+  <!-- UPGRADES -->
+  <div class="upgrades" id="upgrades" style="display:none;">
+    <h3>⚙️ Апгрейды</h3>
+
+    <button onclick="upgradeSpeed()">🚀 Скорость</button>
+    <button onclick="upgradeNitro()">⚡ Нитро</button>
+
+    <p id="stats"></p>
+
+    <button onclick="closeUpgrades()">Назад</button>
+  </div>
+
 </div>
 
-<script>
-const player = document.getElementById("player");
-
-let cars = ["🚗","🚙","🏎"];
-let owned = JSON.parse(localStorage.getItem("owned")) || [true,false,false];
-let selected = localStorage.getItem("selected") || 0;
-let coins = parseInt(localStorage.getItem("coins")) || 0;
-
-player.innerText = cars[selected];
-
-// открыть гараж
-function openGarage(){
-  menu.style.display="none";
-  garage.style.display="flex";
-}
-
-// закрыть гараж
-function closeGarage(){
-  garage.style.display="none";
-  menu.style.display="flex";
-}
-
-// купить или выбрать
-function buyCar(i){
-
-  if(owned[i]){
-    selected = i;
-    localStorage.setItem("selected", i);
-    player.innerText = cars[i];
-    alert("Выбрано!");
-    return;
-  }
-
-  let price = [0,50,100][i];
-
-  if(coins >= price){
-    coins -= price;
-    owned[i] = true;
-
-    localStorage.setItem("coins", coins);
-    localStorage.setItem("owned", JSON.stringify(owned));
-
-    alert("Куплено!");
-  } else {
-    alert("Недостаточно монет!");
-  }
-}
-
-// GAME
-let x = 130;
-let running=false;
-let score=0;
-
-function start(){
-  menu.style.display="none";
-  running=true;
-}
-
-// движение
-document.addEventListener("touchmove", e=>{
-  x = e.touches[0].clientX - 30;
-});
-
-// враги
-setInterval(()=>{
-  if(!running) return;
-
-  let e = document.createElement("div");
-  e.className="enemy";
-  e.style.left=Math.random()*260+"px";
-  game.appendChild(e);
-},800);
-
-// цикл
-function loop(){
-  if(running){
-
-    player.style.left = x + "px";
-
-    document.querySelectorAll(".enemy").forEach(el=>{
-      let top = el.offsetTop;
-      el.style.top = top + 5 + "px";
-
-      if(
-        el.offsetTop+80>460 &&
-        el.offsetLeft < x+50 &&
-        el.offsetLeft+50 > x
-      ){
-        running=false;
-
-        coins += Math.floor(score/5);
-        localStorage.setItem("coins", coins);
-
-        alert("💥 Game Over! +"+Math.floor(score/5)+"💰");
-        location.reload();
-      }
-
-      if(top>600) el.remove();
-    });
-
-    score++;
-    document.getElementById("score").innerText = score;
-    document.getElementById("coins").innerText = "💰 "+coins;
-  }
-
-  requestAnimationFrame(loop);
-}
-
-loop();
-</script>
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
