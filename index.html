@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Racing Game 🚗</title>
 
+<style>
+body {
+  margin:0;
+  background:#0f172a;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:sans-serif;
+  color:white;
+}
+
+.game {
+  width:300px;
+  height:500px;
+  background:#111;
+  overflow:hidden;
+  position:relative;
+  border-radius:20px;
+  box-shadow:0 0 30px black;
+}
+
+.road {
+  position:absolute;
+  width:100%;
+  height:200%;
+  background:linear-gradient(#333 50%, #222 50%);
+  background-size:100% 40px;
+  animation:roadMove 0.5s linear infinite;
+}
+
+@keyframes roadMove {
+  from {transform:translateY(0);}
+  to {transform:translateY(40px);}
+}
+
+.player {
+  width:50px;
+  height:80px;
+  background:#22c55e;
+  position:absolute;
+  bottom:20px;
+  left:125px;
+  border-radius:10px;
+}
+
+.enemy {
+  width:50px;
+  height:80px;
+  background:#ef4444;
+  position:absolute;
+  top:-100px;
+  border-radius:10px;
+}
+
+.score {
+  position:absolute;
+  top:10px;
+  left:10px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game" id="game">
+  <div class="road"></div>
+  <div class="player" id="player"></div>
+  <div class="score" id="score">0</div>
+</div>
+
+<script>
+const player = document.getElementById("player");
+const game = document.getElementById("game");
+const scoreEl = document.getElementById("score");
+
+let playerX = 125;
+let enemies = [];
+let score = 0;
+let speed = 4;
+
+// управление
+document.addEventListener("touchmove", e => {
+  playerX = e.touches[0].clientX - 25;
+});
+
+document.addEventListener("mousemove", e => {
+  playerX = e.clientX - game.offsetLeft - 25;
+});
+
+// спавн врагов
+setInterval(() => {
+  const enemy = document.createElement("div");
+  enemy.className = "enemy";
+  enemy.style.left = Math.random() * 250 + "px";
+  game.appendChild(enemy);
+  enemies.push(enemy);
+}, 1000);
+
+// игровой цикл
+function gameLoop(){
+  player.style.left = playerX + "px";
+
+  enemies.forEach((enemy, i) => {
+    let top = enemy.offsetTop;
+    enemy.style.top = top + speed + "px";
+
+    // столкновение
+    if(
+      enemy.offsetTop + 80 > 420 &&
+      enemy.offsetLeft < playerX + 50 &&
+      enemy.offsetLeft + 50 > playerX
+    ){
+      alert("💥 Game Over! Очки: " + score);
+      location.reload();
+    }
+
+    // удаление
+    if(top > 500){
+      enemy.remove();
+      enemies.splice(i,1);
+      score++;
+      scoreEl.innerText = score;
+    }
+  });
+
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
