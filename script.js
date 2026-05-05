@@ -1,178 +1,100 @@
-const player = document.getElementById("player");
-const game = document.getElementById("game");
-const fire = document.getElementById("fire");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-let x = 130;
-let running = false;
-let score = 0;
+// 🚗 КАРТИНКИ МАШИН (с интернета)
+const playerCar = new Image();
+playerCar.src = "https://upload.wikimedia.org/wikipedia/commons/3/33/Red_Bull_Racing_RB19.jpg";
 
-let coins = parseInt(localStorage.getItem("coins")) || 0;
-let speedLevel = parseInt(localStorage.getItem("speed")) || 1;
-let nitroLevel = parseInt(localStorage.getItem("nitro")) || 1;
+const enemyCar = new Image();
+enemyCar.src = "https://upload.wikimedia.org/wikipedia/commons/6/6e/Mercedes_W14_Formula_One_car.jpg";
 
-let nitro = 100;
-let usingNitro = false;
-
-// UI
-function updateUI(){
-  coinsEl.innerText = "💰 " + coins;
-  stats.innerText = "Speed: "+speedLevel+" | Nitro: "+nitroLevel;
-}
-
-// MENU
-function start(){
-  menu.style.display="none";
-  running=true;
-}
-
-function openGarage(){
-  menu.style.display="none";
-  garage.style.display="flex";
-}
-
-function closeGarage(){
-  garage.style.display="none";
-  menu.style.display="flex";
-}
-
-function openUpgrades(){
-  menu.style.display="none";
-  upgrades.style.display="flex";
-  updateUI();
-}
-
-function closeUpgrades(){
-  upgrades.style.display="none";
-  menu.style.display="flex";
-}
-
-// GARAGE
-let cars = ["🚗","🚙","🏎"];
-let owned = JSON.parse(localStorage.getItem("owned")) || [true,false,false];
-let selected = localStorage.getItem("selected") || 0;
-player.innerText = cars[selected];
-
-function buyCar(i){
-  if(owned[i]){
-    selected = i;
-    localStorage.setItem("selected", i);
-    player.innerText = cars[i];
-    return;
-  }
-
-  let price = [0,50,100][i];
-
-  if(coins >= price){
-    coins -= price;
-    owned[i]=true;
-    save();
-  } else alert("Нет денег");
-}
-
-// UPGRADES
-function upgradeSpeed(){
-  if(coins<20) return;
-  coins-=20;
-  speedLevel++;
-  save();
-  updateUI();
-}
-
-function upgradeNitro(){
-  if(coins<30) return;
-  coins-=30;
-  nitroLevel++;
-  save();
-  updateUI();
-}
-
-function save(){
-  localStorage.setItem("coins", coins);
-  localStorage.setItem("speed", speedLevel);
-  localStorage.setItem("nitro", nitroLevel);
-  localStorage.setItem("owned", JSON.stringify(owned));
-}
-
-// CONTROL
-document.addEventListener("touchmove", e=>{
-  x = e.touches[0].clientX - 30;
-});
-
-// NITRO BUTTON
-nitroBtn.onclick = ()=>{
-  if(nitro>10){
-    usingNitro=true;
-
-    fire.style.opacity=1;
-    player.classList.add("nitroActive");
-    game.classList.add("shake");
-
-    setTimeout(()=>{
-      usingNitro=false;
-      fire.style.opacity=0;
-      player.classList.remove("nitroActive");
-      game.classList.remove("shake");
-    },1200);
-  }
+// 🎮 ИГРОК
+let player = {
+  x: 130,
+  y: 420,
+  w: 70,
+  h: 120,
+  speed: 6
 };
 
-// ENEMIES
-setInterval(()=>{
-  if(!running) return;
+// 👾 ВРАГИ
+let enemies = [];
 
-  let e=document.createElement("div");
-  e.className="enemy";
-  e.style.left=Math.random()*260+"px";
-  game.appendChild(e);
-},800);
+// ⚡ СКОРОСТЬ
+let gameSpeed = 3;
+let difficulty = 0;
 
-// LOOP
-function loop(){
-  if(running){
+// 🎯 УПРАВЛЕНИЕ (мобильное)
+document.addEventListener("touchmove", e => {
+  player.x = e.touches[0].clientX - 50;
+});
 
-    player.style.left = x + "px";
+// ⌨️ ПК управление
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") player.x -= player.speed;
+  if (e.key === "ArrowRight") player.x += player.speed;
+});
 
-    let gameSpeed = 4 + speedLevel;
+// 🚨 СПАВН ВРАГОВ
+function spawnEnemy() {
+  enemies.push({
+    x: Math.random() * 250,
+    y: -120,
+    w: 70,
+    h: 120
+  });
 
-    if(usingNitro){
-      gameSpeed += 10 + nitroLevel*2;
-      nitro -= 2;
-      document.body.classList.add("speed");
-    }else{
-      document.body.classList.remove("speed");
-    }
-
-    document.querySelectorAll(".enemy").forEach(el=>{
-      let top=el.offsetTop;
-      el.style.top=top+gameSpeed+"px";
-
-      if(
-        el.offsetTop+80>460 &&
-        el.offsetLeft<x+50 &&
-        el.offsetLeft+50>x
-      ){
-        running=false;
-        coins+=Math.floor(score/5);
-        save();
-        alert("💥 Game Over");
-        location.reload();
-      }
-
-      if(top>600) el.remove();
-    });
-
-    score++;
-    scoreEl.innerText=score;
-
-    // nitro reload
-    if(!usingNitro && nitro<100){
-      nitro+=0.3*nitroLevel;
-    }
-
-    nitroBar.style.width = nitro + "%";
-  }
-
-  requestAnimationFrame(loop);
+  // сложность растет
+  let delay = Math.max(600, 2000 - difficulty);
+  setTimeout(spawnEnemy, delay);
 }
 
-loop();
+// 💥 СТОЛКНОВЕНИЕ
+function crash(a, b) {
+  return (
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y
+  );
+}
+
+// 🎨 РЕНДЕР
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // дорога
+  ctx.fillStyle = "#222";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 🚗 игрок
+  ctx.drawImage(playerCar, player.x, player.y, player.w, player.h);
+
+  // 👾 враги
+  enemies.forEach((enemy, i) => {
+    enemy.y += gameSpeed;
+
+    ctx.drawImage(enemyCar, enemy.x, enemy.y, enemy.w, enemy.h);
+
+    // удаление
+    if (enemy.y > 600) {
+      enemies.splice(i, 1);
+    }
+
+    // столкновение
+    if (crash(player, enemy)) {
+      alert("💥 Game Over!");
+      location.reload();
+    }
+  });
+
+  // рост сложности
+  difficulty += 0.5;
+  gameSpeed += 0.002;
+
+  requestAnimationFrame(draw);
+}
+
+// 🚀 СТАРТ
+spawnEnemy();
+draw();
