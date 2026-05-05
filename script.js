@@ -1,54 +1,37 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// 🚗 КАРТИНКИ
-const playerCar = new Image();
-playerCar.src = "https://upload.wikimedia.org/wikipedia/commons/3/33/Red_Bull_Racing_RB19.jpg";
-
-const enemyCar = new Image();
-enemyCar.src = "https://upload.wikimedia.org/wikipedia/commons/6/6e/Mercedes_W14_Formula_One_car.jpg";
-
-// 🎮 ИГРОК
+// 🚗 ИГРОК
 let player = {
   x: 130,
   y: 450,
-  w: 70,
-  h: 120,
+  w: 50,
+  h: 100,
   speed: 6
 };
 
 // 👾 ВРАГИ
 let enemies = [];
 
-// ⚡ ИГРА
 let gameSpeed = 3;
-let difficulty = 0;
 
-// 📱 УПРАВЛЕНИЕ (телефон)
+// 📱 УПРАВЛЕНИЕ
 canvas.addEventListener("touchmove", function(e) {
-  const touch = e.touches[0];
   const rect = canvas.getBoundingClientRect();
-  let x = touch.clientX - rect.left;
-  player.x = x - player.w / 2;
-});
-
-// ⌨️ ПК
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft") player.x -= player.speed;
-  if (e.key === "ArrowRight") player.x += player.speed;
+  const touch = e.touches[0];
+  player.x = touch.clientX - rect.left - player.w / 2;
 });
 
 // 👾 СПАВН
 function spawnEnemy() {
   enemies.push({
-    x: Math.random() * (canvas.width - 70),
-    y: -120,
-    w: 70,
-    h: 120
+    x: Math.random() * (canvas.width - 50),
+    y: -100,
+    w: 50,
+    h: 100
   });
 
-  let delay = Math.max(500, 1500 - difficulty);
-  setTimeout(spawnEnemy, delay);
+  setTimeout(spawnEnemy, 1200);
 }
 
 // 💥 СТОЛКНОВЕНИЕ
@@ -61,34 +44,52 @@ function crash(a, b) {
   );
 }
 
-// 🎨 РИСОВАНИЕ
-function draw() {
+// 🚗 РИСУЕМ МАШИНУ (КРАСИВО)
+function drawCar(x, y, color, glow) {
+  ctx.save();
+
+  // неон
+  ctx.shadowColor = glow;
+  ctx.shadowBlur = 20;
+
+  // корпус
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, 50, 100);
+
+  // стекло
+  ctx.fillStyle = "#222";
+  ctx.fillRect(x + 10, y + 15, 30, 25);
+
+  // фары
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(x + 5, y, 10, 10);
+  ctx.fillRect(x + 35, y, 10, 10);
+
+  ctx.restore();
+}
+
+// 🎨 ИГРА
+function game() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // дорога
   ctx.fillStyle = "#111";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // разметка дороги
+  // разметка
   ctx.fillStyle = "white";
   for (let i = 0; i < canvas.height; i += 40) {
     ctx.fillRect(canvas.width / 2 - 2, i + (Date.now()/10 % 40), 4, 20);
   }
 
-  // 🚗 НЕОН ПОД ИГРОКОМ
-  ctx.shadowColor = "red";
-  ctx.shadowBlur = 20;
-  ctx.drawImage(playerCar, player.x, player.y, player.w, player.h);
-  ctx.shadowBlur = 0;
+  // 🚗 игрок
+  drawCar(player.x, player.y, "red", "red");
 
-  // 👾 ВРАГИ
+  // 👾 враги
   enemies.forEach((enemy, i) => {
     enemy.y += gameSpeed;
 
-    ctx.shadowColor = "cyan";
-    ctx.shadowBlur = 15;
-    ctx.drawImage(enemyCar, enemy.x, enemy.y, enemy.w, enemy.h);
-    ctx.shadowBlur = 0;
+    drawCar(enemy.x, enemy.y, "cyan", "cyan");
 
     if (enemy.y > canvas.height) {
       enemies.splice(i, 1);
@@ -106,13 +107,9 @@ function draw() {
     player.x = canvas.width - player.w;
   }
 
-  // сложность
-  difficulty += 0.3;
-  gameSpeed += 0.001;
-
-  requestAnimationFrame(draw);
+  requestAnimationFrame(game);
 }
 
 // 🚀 СТАРТ
 spawnEnemy();
-draw();
+game();
