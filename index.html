@@ -1,163 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Racing</title>
+  <meta charset="UTF-8">
+  <title>Racing Game</title>
 
-<style>
-body{
-  margin:0;
-  background:#0f172a;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
+  <style>
+    body {
+      margin: 0;
+      background: #0b1220;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-.game{
-  width:320px;
-  height:550px;
-  background:#111;
-  border-radius:20px;
-  overflow:hidden;
-  position:relative;
-}
-
-.road{
-  position:absolute;
-  width:100%;
-  height:200%;
-  background:linear-gradient(#333 50%, #222 50%);
-  background-size:100% 40px;
-  animation:roadMove 0.3s linear infinite;
-}
-
-@keyframes roadMove{
-  from{transform:translateY(0);}
-  to{transform:translateY(40px);}
-}
-
-.player{
-  width:80px;
-  height:160px;
-  position:absolute;
-  bottom:10px;
-  left:120px;
-  background:url('player.png') center/contain no-repeat;
-  transform:rotate(90deg);
-
-  filter: drop-shadow(0 0 10px red)
-          drop-shadow(0 0 20px orange);
-}
-
-.enemy{
-  width:80px;
-  height:160px;
-  position:absolute;
-  top:-150px;
-  background:url('enemy.png') center/contain no-repeat;
-  transform:rotate(90deg);
-}
-
-.menu{
-  position:absolute;
-  width:100%;
-  height:100%;
-  background:#000c;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  z-index:5;
-}
-
-button{
-  padding:12px 25px;
-  border:none;
-  border-radius:10px;
-}
-</style>
+    canvas {
+      background: linear-gradient(#111, #000);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="game" id="game">
-  <div class="road"></div>
-  <div class="player" id="player"></div>
+  <!-- 🎮 ИГРА -->
+  <canvas id="game" width="320" height="600"></canvas>
 
-  <div class="menu" id="menu">
-    <h2 style="color:white;">🚗 Racing</h2>
-    <button onclick="start()">Start</button>
-  </div>
-</div>
-
-<script>
-let player = document.getElementById("player");
-let game = document.getElementById("game");
-let menu = document.getElementById("menu");
-
-let x = 120;
-let running = false;
-let difficulty = 1;
-
-// START
-function start(){
-  menu.style.display="none";
-  running=true;
-  spawnEnemy();
-}
-
-// CONTROL
-document.addEventListener("touchmove", e=>{
-  x = e.touches[0].clientX - 40;
-});
-
-// ENEMY
-function spawnEnemy(){
-  if(!running) return;
-
-  let e = document.createElement("div");
-  e.className = "enemy";
-
-  e.style.left = Math.random()*240 + "px";
-  game.appendChild(e);
-
-  let delay = Math.max(800, 2000 - difficulty*100);
-  setTimeout(spawnEnemy, delay);
-}
-
-// LOOP
-function loop(){
-  if(running){
-
-    player.style.left = x + "px";
-
-    difficulty++;
-
-    document.querySelectorAll(".enemy").forEach(el=>{
-      let top = el.offsetTop;
-      let speed = 4 + difficulty*0.02;
-
-      el.style.top = top + speed + "px";
-
-      if(
-        el.offsetTop+100>450 &&
-        el.offsetLeft < x+70 &&
-        el.offsetLeft+70 > x
-      ){
-        alert("💥 Game Over");
-        location.reload();
-      }
-
-      if(top>600) el.remove();
-    });
-  }
-
-  requestAnimationFrame(loop);
-}
-
-loop();
-</script>
+  <!-- 🔥 ПОДКЛЮЧЕНИЕ JS -->
+  <script src="script.js"></script>
 
 </body>
 </html>
