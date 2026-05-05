@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Racing 🚗</title>
+<title>Racing</title>
 
 <style>
 body{
@@ -13,7 +12,6 @@ body{
   justify-content:center;
   align-items:center;
   height:100vh;
-  font-family:sans-serif;
 }
 
 .game{
@@ -25,7 +23,6 @@ body{
   position:relative;
 }
 
-/* ROAD */
 .road{
   position:absolute;
   width:100%;
@@ -40,26 +37,28 @@ body{
   to{transform:translateY(40px);}
 }
 
-/* PLAYER */
 .player{
-  width:60px;
-  height:100px;
+  width:80px;
+  height:160px;
   position:absolute;
-  bottom:20px;
-  left:130px;
-  background:url('https://i.imgur.com/7QZ8Z6F.png') center/cover;
+  bottom:10px;
+  left:120px;
+  background:url('player.png') center/contain no-repeat;
+  transform:rotate(90deg);
+
+  filter: drop-shadow(0 0 10px red)
+          drop-shadow(0 0 20px orange);
 }
 
-/* ENEMY */
 .enemy{
-  width:60px;
-  height:100px;
+  width:80px;
+  height:160px;
   position:absolute;
-  top:-100px;
-  background-size:cover;
+  top:-150px;
+  background:url('enemy.png') center/contain no-repeat;
+  transform:rotate(90deg);
 }
 
-/* MENU */
 .menu{
   position:absolute;
   width:100%;
@@ -72,13 +71,10 @@ body{
   z-index:5;
 }
 
-/* BUTTON */
 button{
   padding:12px 25px;
-  margin-top:10px;
   border:none;
   border-radius:10px;
-  font-size:16px;
 }
 </style>
 </head>
@@ -86,61 +82,47 @@ button{
 <body>
 
 <div class="game" id="game">
-
   <div class="road"></div>
-
   <div class="player" id="player"></div>
 
   <div class="menu" id="menu">
-    <h2>🚗 Racing</h2>
+    <h2 style="color:white;">🚗 Racing</h2>
     <button onclick="start()">Start</button>
   </div>
-
 </div>
 
 <script>
-const player = document.getElementById("player");
-const game = document.getElementById("game");
-const menu = document.getElementById("menu");
+let player = document.getElementById("player");
+let game = document.getElementById("game");
+let menu = document.getElementById("menu");
 
-let x = 130;
+let x = 120;
 let running = false;
-let score = 0;
 let difficulty = 1;
 
 // START
 function start(){
   menu.style.display="none";
-  running = true;
+  running=true;
   spawnEnemy();
 }
 
 // CONTROL
 document.addEventListener("touchmove", e=>{
-  x = e.touches[0].clientX - 30;
+  x = e.touches[0].clientX - 40;
 });
 
-// 🚗 СПАВН (редкий + растёт сложность)
+// ENEMY
 function spawnEnemy(){
   if(!running) return;
 
   let e = document.createElement("div");
   e.className = "enemy";
 
-  let cars = [
-   "https://i.imgur.com/zYxDCQT.png",
-   "https://i.imgur.com/U3s9QpD.png",
-   "https://i.imgur.com/3sY7X4D.png"
-  ];
-
-  let randomCar = cars[Math.floor(Math.random()*cars.length)];
-  e.style.background = `url(${randomCar}) center/cover`;
-
-  e.style.left = Math.random()*260 + "px";
+  e.style.left = Math.random()*240 + "px";
   game.appendChild(e);
 
-  // 🔥 чем больше играешь — тем чаще враги
-  let delay = Math.max(700, 2000 - difficulty * 120);
+  let delay = Math.max(800, 2000 - difficulty*100);
   setTimeout(spawnEnemy, delay);
 }
 
@@ -150,27 +132,20 @@ function loop(){
 
     player.style.left = x + "px";
 
-    score++;
-
-    // 📈 сложность растёт
-    difficulty = Math.floor(score / 100);
+    difficulty++;
 
     document.querySelectorAll(".enemy").forEach(el=>{
       let top = el.offsetTop;
-
-      // 🚀 скорость увеличивается
-      let speed = 4 + difficulty * 0.6;
+      let speed = 4 + difficulty*0.02;
 
       el.style.top = top + speed + "px";
 
-      // 💥 столкновение
       if(
-        el.offsetTop+80>460 &&
-        el.offsetLeft < x+50 &&
-        el.offsetLeft+50 > x
+        el.offsetTop+100>450 &&
+        el.offsetLeft < x+70 &&
+        el.offsetLeft+70 > x
       ){
-        running=false;
-        alert("💥 Game Over\nScore: " + score);
+        alert("💥 Game Over");
         location.reload();
       }
 
